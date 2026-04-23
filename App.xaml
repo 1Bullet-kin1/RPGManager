@@ -1,0 +1,31 @@
+﻿<Application x:Class="RPGManager.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:RPGManager.ViewModels"
+             xmlns:views="clr-namespace:RPGManager.Views"
+             xmlns:local="clr-namespace:RPGManager"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:NpcViewModel}">
+            <views:NpcView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:LocationViewModel}">
+            <views:LocationView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QuestViewModel}">
+            <views:QuestView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:FactionViewModel}">
+            <views:FactionView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:WorldViewModel}">
+            <views:WorldView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:NotesViewModel}">
+            <views:NotesView/>
+        </DataTemplate>
+    </Application.Resources>
+</Application>
