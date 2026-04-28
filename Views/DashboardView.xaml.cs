@@ -11,7 +11,7 @@ namespace RPGManager.Views
         public DashboardView()
         {
             InitializeComponent();
-            DataContext = new DashboardViewModel();
+            DataContext = new DashboardViewModel(MainViewModel.Instance);
         }
         private void NoteClicked(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {

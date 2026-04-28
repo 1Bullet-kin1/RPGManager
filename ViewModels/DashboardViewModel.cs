@@ -8,7 +8,7 @@ namespace RPGManager.ViewModels
 {
     public class DashboardViewModel : BaseViewModel
     {
-        private readonly MainViewModel _mainViewModel;
+        private readonly MainViewModel? _mainViewModel;
         public DashboardViewModel(MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
@@ -99,10 +99,6 @@ namespace RPGManager.ViewModels
         public ObservableCollection<Npc?> PinnedSlots { get; set; } = new ObservableCollection<Npc?>();
         public ObservableCollection<Note> RecentNotes { get; set; } = new ObservableCollection<Note>();
 
-        public DashboardViewModel()
-        {
-            LoadData();
-        }
 
         private void LoadData() {
             using var db = DbContextFactory.Create();
@@ -141,17 +137,28 @@ namespace RPGManager.ViewModels
         }
         public void OpenNote(Note note)
         {
+            if (_mainViewModel == null) return; // ← защита
             _mainViewModel.NavigateTo<NotesViewModel>(vm =>
             {
-                vm.SelectedNote = vm.Notes.FirstOrDefault(n => n.Id == note.Id);
+                var found = vm.Notes.FirstOrDefault(n => n.Id == note.Id);
+                if (found != null)
+                    vm.SelectedNote = found;
             });
         }
 
         public void OpenQuest(Quest quest)
         {
+            if (_mainViewModel == null) return;
             _mainViewModel.NavigateTo<QuestViewModel>(vm =>
             {
-                vm.SelectedQuest = vm.Quests.FirstOrDefault(q => q.Id == quest.Id);
+                // Временно — посмотри что выводит
+                System.Diagnostics.Debug.WriteLine($"Ищем quest.Id = {quest.Id}");
+                foreach (var q in vm.Quests)
+                    System.Diagnostics.Debug.WriteLine($"  в списке: {q.Id} — {q.Title}");
+
+                var found = vm.Quests.FirstOrDefault(q => q.Id == quest.Id);
+                if (found != null)
+                    vm.SelectedQuest = found;
             });
         }
     }

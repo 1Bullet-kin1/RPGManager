@@ -1,5 +1,4 @@
-﻿using RPGManager.ViewModels;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 
 namespace RPGManager.Views
@@ -9,7 +8,6 @@ namespace RPGManager.Views
         public WorldView()
         {
             InitializeComponent();
-            DataContext = new WorldViewModel();
         }
     }
 }

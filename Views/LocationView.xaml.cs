@@ -1,5 +1,4 @@
 ﻿using System.Windows.Controls;
-using RPGManager.ViewModels;
 
 namespace RPGManager.Views
 {
@@ -9,7 +8,7 @@ namespace RPGManager.Views
         public LocationView()
         {
             InitializeComponent();
-            DataContext = new LocationViewModel();
+
         }
     }
 }
