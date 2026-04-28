@@ -4,9 +4,129 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RPGManager.Views"
+             xmlns:helpers="clr-namespace:RPGManager.Helpers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid>
-        <TextBlock>!!222!!</TextBlock>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Список локаций -->
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding Locations}"
+                 SelectedItem="{Binding SelectedLocation}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="4">
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Type}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Правая панель -->
+        <Grid Grid.Column="1">
+
+            <TextBlock Text="Выберите локацию из списка"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding SelectedLocation,
+                           Converter={StaticResource NullToVisibilityConverter},
+                           ConverterParameter=inverse}"/>
+
+            <ScrollViewer Visibility="{Binding SelectedLocation,
+                              Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel Margin="16" DataContext="{Binding SelectedLocation}">
+
+                    <!-- Название и тип -->
+                    <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Type}" Margin="0,4,0,0"/>
+
+                    <!-- Географическая цепочка -->
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="Мир: "/>
+                        <TextBlock Text="{Binding Region.Continent.World.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Континент: "/>
+                        <TextBlock Text="{Binding Region.Continent.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Регион: "/>
+                        <TextBlock Text="{Binding Region.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Описание -->
+                    <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- NPC -->
+                    <TextBlock Text="NPC" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <ItemsControl ItemsSource="{Binding Npcs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="· " />
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                    <TextBlock Text=" — "/>
+                                    <TextBlock Text="{Binding Race}"/>
+                                    <TextBlock Text=", "/>
+                                    <TextBlock Text="{Binding Class}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Фракции -->
+                    <TextBlock Text="Фракции" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <ItemsControl ItemsSource="{Binding Factions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="· "/>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                    <TextBlock Text=" — "/>
+                                    <TextBlock Text="{Binding Alignment}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Квесты -->
+                    <TextBlock Text="Квесты" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <ItemsControl ItemsSource="{Binding Quests}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="· "/>
+                                    <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                    <TextBlock Text=" — "/>
+                                    <TextBlock Text="{Binding Status}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
     </Grid>
 </UserControl>

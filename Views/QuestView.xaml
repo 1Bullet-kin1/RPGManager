@@ -4,9 +4,72 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RPGManager.Views"
+             xmlns:helpers="clr-namespace:RPGManager.Helpers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid>
-            
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Список квестов -->
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding Quests}"
+                 SelectedItem="{Binding SelectedQuest}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="4">
+                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Status}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Правая панель -->
+        <Grid Grid.Column="1">
+
+            <TextBlock Text="Выберите квест из списка"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding SelectedQuest,
+                           Converter={StaticResource NullToVisibilityConverter},
+                           ConverterParameter=inverse}"/>
+
+            <ScrollViewer Visibility="{Binding SelectedQuest,
+                              Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel Margin="16" DataContext="{Binding SelectedQuest}">
+
+                    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="Статус: "/>
+                        <TextBlock Text="{Binding Status}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Квестодатель: "/>
+                        <TextBlock Text="{Binding QuestGiver.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Локация: "/>
+                        <TextBlock Text="{Binding Location.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <Separator Margin="0,12"/>
+
+                    <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
     </Grid>
 </UserControl>

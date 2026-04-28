@@ -29,7 +29,9 @@ namespace RPGManager.ViewModels
             {
                 _currentPage = value;
                 OnPropertyChanged();
-                CurrentViewModel = Activator.CreateInstance(value.ViewModelType) as BaseViewModel;
+                CurrentViewModel = value.ViewModelType == typeof(DashboardViewModel)
+                    ? new DashboardViewModel(this)
+                    : Activator.CreateInstance(value.ViewModelType) as BaseViewModel;
             }
         }
 
@@ -43,6 +45,16 @@ namespace RPGManager.ViewModels
         public MainViewModel()
         {
             CurrentPage = NavigationItems[0];
+        }
+        public void NavigateTo<TViewModel>(Action<TViewModel>? configure = null) where TViewModel : BaseViewModel
+        {
+            var page = NavigationItems.FirstOrDefault(n => n.ViewModelType == typeof(TViewModel));
+            if (page == null) return;
+
+            CurrentPage = page;
+
+            if (configure != null && CurrentViewModel is TViewModel vm)
+                configure(vm);
         }
     }
 }

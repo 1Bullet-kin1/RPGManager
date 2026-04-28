@@ -4,9 +4,180 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RPGManager.Views"
+             xmlns:helpers="clr-namespace:RPGManager.Helpers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock>!!!!</TextBlock>
-    </Grid>
+
+    <UserControl.Resources>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <ScrollViewer>
+        <StackPanel Margin="24">
+
+            <TextBlock Text="Dashboard" FontSize="28" FontWeight="Bold" Margin="0,0,0,24"/>
+
+            <!-- Счётчики -->
+            <WrapPanel Margin="0,0,0,24">
+                <Border BorderBrush="Gray" BorderThickness="1"
+                        Padding="20,12" Margin="0,0,12,12" MinWidth="120">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding WorldCount}" FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="🌍 Миры" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="Gray" BorderThickness="1"
+                        Padding="20,12" Margin="0,0,12,12" MinWidth="120">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding NpcCount}" FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="👤 NPC" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="Gray" BorderThickness="1"
+                        Padding="20,12" Margin="0,0,12,12" MinWidth="120">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding QuestCount}" FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="📜 Квесты" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="Gray" BorderThickness="1"
+                        Padding="20,12" Margin="0,0,12,12" MinWidth="120">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding FactionCount}" FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="⚔️ Фракции" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="Gray" BorderThickness="1"
+                        Padding="20,12" Margin="0,0,12,12" MinWidth="120">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding LocationCount}" FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="📍 Локации" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="Gray" BorderThickness="1"
+                        Padding="20,12" Margin="0,0,12,12" MinWidth="120">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding NoteCount}" FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="📝 Заметки" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+
+            <!-- Закреплённые NPC -->
+            <TextBlock Text="Ключевые персонажи" FontSize="18"
+                       FontWeight="Bold" Margin="0,0,0,12"/>
+            <ItemsControl ItemsSource="{Binding PinnedSlots}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1" Columns="4"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="Gray" BorderThickness="1"
+        Margin="0,0,12,0" Padding="12" MinHeight="100">
+                            <Grid>
+                                <!-- Слот заполнен -->
+                                <StackPanel Visibility="{Binding Converter={StaticResource NullToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16"/>
+                                    <Separator Margin="0,6"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Раса: " Opacity="0.6"/>
+                                        <TextBlock Text="{Binding Race}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Класс: " Opacity="0.6"/>
+                                        <TextBlock Text="{Binding Class}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Уровень: " Opacity="0.6"/>
+                                        <TextBlock Text="{Binding Level}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Мировоззрение: " Opacity="0.6"/>
+                                        <TextBlock Text="{Binding Alignment}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <Separator Margin="0,6"/>
+                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Opacity="0.8" FontSize="11"/>
+                                </StackPanel>
+
+                                <!-- Слот пустой -->
+                                <TextBlock Text="— пусто —" Opacity="0.3"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding Converter={StaticResource NullToVisibilityConverter},
+                                ConverterParameter=inverse}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Активные квесты + Последние заметки -->
+            <Grid Margin="0,24,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Активные квесты -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Активные квесты" FontSize="18"
+                               FontWeight="Bold" Margin="0,0,0,12"/>
+                    <ItemsControl ItemsSource="{Binding ActiveQuests}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Gray" BorderThickness="1"
+                                        Padding="12" Margin="0,0,0,8"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="QuestClicked">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <TextBlock Text="📍 "/>
+                                            <TextBlock Text="{Binding Location.Name}" Opacity="0.7"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Последние заметки -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Последние заметки" FontSize="18"
+                               FontWeight="Bold" Margin="0,0,0,12"/>
+                    <ItemsControl ItemsSource="{Binding RecentNotes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Gray" BorderThickness="1"
+                                        Padding="12" Margin="0,0,0,8"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="NoteClicked">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding LinkedType}" Opacity="0.7"/>
+                                            <TextBlock Text=" · " Opacity="0.7"/>
+                                            <TextBlock Text="{Binding CreatedAt, StringFormat=dd.MM.yyyy}" Opacity="0.7"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
+

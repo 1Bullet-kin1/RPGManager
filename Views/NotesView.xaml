@@ -4,9 +4,87 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RPGManager.Views"
+             xmlns:helpers="clr-namespace:RPGManager.Helpers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid>
-        <TextBlock>!!!!32131</TextBlock>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Список заметок -->
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding Notes}"
+                 SelectedItem="{Binding SelectedNote}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="4">
+                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding LinkedType}"/>
+                            <TextBlock Text=" · "/>
+                            <TextBlock Text="{Binding CreatedAt, StringFormat=dd.MM.yyyy}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Правая панель -->
+        <Grid Grid.Column="1">
+
+            <TextBlock Text="Выберите заметку из списка"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding SelectedNote,
+                           Converter={StaticResource NullToVisibilityConverter},
+                           ConverterParameter=inverse}"/>
+
+            <ScrollViewer Visibility="{Binding SelectedNote,
+                              Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel Margin="16">
+
+                    <!-- Заголовок заметки -->
+                    <TextBlock Text="{Binding SelectedNote.Title}"
+                               FontSize="24" FontWeight="Bold"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Тип: "/>
+                        <TextBlock Text="{Binding SelectedNote.LinkedType}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Дата: "/>
+                        <TextBlock Text="{Binding SelectedNote.CreatedAt, StringFormat=dd.MM.yyyy HH:mm}"
+                                   FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Содержимое заметки -->
+                    <TextBlock Text="Заметка" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedNote.Content}"
+                               TextWrapping="Wrap"/>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Связанный объект -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Связан с: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding LinkedObjectName}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Описание объекта" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding LinkedObjectDescription}" TextWrapping="Wrap"/>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
     </Grid>
 </UserControl>

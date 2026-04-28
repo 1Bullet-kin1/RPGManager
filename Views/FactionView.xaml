@@ -4,9 +4,107 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RPGManager.Views"
+             xmlns:helpers="clr-namespace:RPGManager.Helpers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid>
-        <TextBlock>!!!1</TextBlock>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Список фракций -->
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding Factions}"
+                 SelectedItem="{Binding SelectedFaction}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="4">
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Alignment}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Правая панель -->
+        <Grid Grid.Column="1">
+
+            <TextBlock Text="Выберите фракцию из списка"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding SelectedFaction,
+                           Converter={StaticResource NullToVisibilityConverter},
+                           ConverterParameter=inverse}"/>
+
+            <ScrollViewer Visibility="{Binding SelectedFaction,
+                              Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel Margin="16" DataContext="{Binding SelectedFaction}">
+
+                    <!-- Название -->
+                    <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Alignment}" Margin="0,4,0,0"/>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Расположение -->
+                    <TextBlock Text="Расположение" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                        <TextBlock Text="База: "/>
+                        <TextBlock Text="{Binding BaseLocation.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                        <TextBlock Text="Регион: "/>
+                        <TextBlock Text="{Binding BaseLocation.Region.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                        <TextBlock Text="Континент: "/>
+                        <TextBlock Text="{Binding BaseLocation.Region.Continent.Name}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Описание -->
+                    <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+
+                    <Separator Margin="0,12"/>
+
+                    <!-- Участники -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Участники — " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Npcs.Count}" FontWeight="Bold"/>
+                        <TextBlock Text=" чел."/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding Npcs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="· "/>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                    <TextBlock Text=" — "/>
+                                    <TextBlock Text="{Binding Race}"/>
+                                    <TextBlock Text=", "/>
+                                    <TextBlock Text="{Binding Class}"/>
+                                    <TextBlock Text=", "/>
+                                    <TextBlock Text="{Binding Level}"/>
+                                    <TextBlock Text=" ур."/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
     </Grid>
 </UserControl>

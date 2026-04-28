@@ -311,3 +311,4 @@ D:\Code\Практика\RPG\RPGManager\obj\Debug\net9.0-windows\refint\RPGManag
 D:\Code\Практика\RPG\RPGManager\obj\Debug\net9.0-windows\RPGManager.pdb
 D:\Code\Практика\RPG\RPGManager\obj\Debug\net9.0-windows\RPGManager.genruntimeconfig.cache
 D:\Code\Практика\RPG\RPGManager\obj\Debug\net9.0-windows\ref\RPGManager.dll
+D:\Code\Практика\RPG\RPGManager\obj\Debug\net9.0-windows\RPGManager.sourcelink.json

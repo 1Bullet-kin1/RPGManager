@@ -31,6 +31,8 @@ public partial class Npc
 
     public virtual ICollection<Npcrelation> NpcrelationNpcId2Navigations { get; set; } = new List<Npcrelation>();
 
+    public virtual ICollection<PinnedNpc> PinnedNpcs { get; set; } = new List<PinnedNpc>();
+
     public virtual ICollection<QuestNpc> QuestNpcs { get; set; } = new List<QuestNpc>();
 
     public virtual ICollection<Quest> Quests { get; set; } = new List<Quest>();

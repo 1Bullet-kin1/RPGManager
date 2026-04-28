@@ -24,6 +24,8 @@ public partial class DndDBContext : DbContext
 
     public virtual DbSet<Npcrelation> Npcrelations { get; set; }
 
+    public virtual DbSet<PinnedNpc> PinnedNpcs { get; set; }
+
     public virtual DbSet<Quest> Quests { get; set; }
 
     public virtual DbSet<QuestNpc> QuestNpcs { get; set; }
@@ -168,6 +170,19 @@ public partial class DndDBContext : DbContext
                 .HasForeignKey(d => d.NpcId2)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__NPCRelati__npc_i__5DCAEF64");
+        });
+
+        modelBuilder.Entity<PinnedNpc>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__PinnedNp__3213E83FC9D031F6");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.NpcId).HasColumnName("npc_id");
+            entity.Property(e => e.Slot).HasColumnName("slot");
+
+            entity.HasOne(d => d.Npc).WithMany(p => p.PinnedNpcs)
+                .HasForeignKey(d => d.NpcId)
+                .HasConstraintName("FK__PinnedNpc__npc_i__6FE99F9F");
         });
 
         modelBuilder.Entity<Quest>(entity =>
