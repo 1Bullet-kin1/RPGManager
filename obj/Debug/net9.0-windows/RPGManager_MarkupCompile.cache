@@ -4,15 +4,15 @@
 winexe
 C#
 .cs
-C:\Users\Bullet kin\OneDrive\Рабочий стол\Практика\RPG\RPGManager\obj\Debug\net9.0-windows\
+D:\Code\Практика\RPG\RPGManager\obj\Debug\net9.0-windows\
 RPGManager
 none
 false
 TRACE;DEBUG;NET;NET9_0;NETCOREAPP
-C:\Users\Bullet kin\OneDrive\Рабочий стол\Практика\RPG\RPGManager\App.xaml
+D:\Code\Практика\RPG\RPGManager\App.xaml
 81601917988
 
-331949482307
+34143147435
 229-79186459
 MainWindow.xaml;Views\DashboardView.xaml;Views\FactionView.xaml;Views\LocationView.xaml;Views\NotesView.xaml;Views\NpcView.xaml;Views\QuestView.xaml;Views\WorldView.xaml;
 

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Bullet kin\\OneDrive\\Рабочий стол\\Практика\\RPG\\RPGManager\\RPGManager.csproj": {}
+    "D:\\Code\\Практика\\RPG\\RPGManager\\RPGManager.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Bullet kin\\OneDrive\\Рабочий стол\\Практика\\RPG\\RPGManager\\RPGManager.csproj": {
+    "D:\\Code\\Практика\\RPG\\RPGManager\\RPGManager.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Bullet kin\\OneDrive\\Рабочий стол\\Практика\\RPG\\RPGManager\\RPGManager.csproj",
+        "projectUniqueName": "D:\\Code\\Практика\\RPG\\RPGManager\\RPGManager.csproj",
         "projectName": "RPGManager",
-        "projectPath": "C:\\Users\\Bullet kin\\OneDrive\\Рабочий стол\\Практика\\RPG\\RPGManager\\RPGManager.csproj",
+        "projectPath": "D:\\Code\\Практика\\RPG\\RPGManager\\RPGManager.csproj",
         "packagesPath": "C:\\Users\\Bullet kin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Bullet kin\\OneDrive\\Рабочий стол\\Практика\\RPG\\RPGManager\\obj\\",
+        "outputPath": "D:\\Code\\Практика\\RPG\\RPGManager\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

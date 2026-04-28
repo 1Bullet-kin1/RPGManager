@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FH0Tf2fN/CA=",
+  "dgSpecHash": "fA9WUntezIM=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Bullet kin\\OneDrive\\Рабочий стол\\Практика\\RPG\\RPGManager\\RPGManager.csproj",
+  "projectFilePath": "D:\\Code\\Практика\\RPG\\RPGManager\\RPGManager.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Bullet kin\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Bullet kin\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
