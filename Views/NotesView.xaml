@@ -17,7 +17,16 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Список заметок -->
+        <DockPanel Grid.Column="0">
+
+            <!-- Кнопки сверху -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
+                <Button Content="+ Создать" Padding="8,4" Margin="0,0,8,0"
+                        Click="AddNote_Click"/>
+                <Button Content="🗑 Удалить" Padding="8,4"
+                        Click="DeleteNote_Click"/>
+            </StackPanel>
+            <!-- Список заметок -->
         <ListBox Grid.Column="0"
                  ItemsSource="{Binding Notes}"
                  SelectedItem="{Binding SelectedNote}">
@@ -34,7 +43,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-
+    </DockPanel>
         <!-- Правая панель -->
         <Grid Grid.Column="1">
 
@@ -46,44 +55,106 @@
                            ConverterParameter=inverse}"/>
 
             <ScrollViewer Visibility="{Binding SelectedNote,
-                              Converter={StaticResource NullToVisibilityConverter}}">
-                <StackPanel Margin="16">
+                  Converter={StaticResource NullToVisibilityConverter}}">
+    <StackPanel Margin="16">
 
-                    <!-- Заголовок заметки -->
-                    <TextBlock Text="{Binding SelectedNote.Title}"
-                               FontSize="24" FontWeight="Bold"/>
+        <!-- Заголовок -->
+        <TextBlock Text="{Binding SelectedNote.Title}"
+                   FontSize="22" FontWeight="Bold"
+                   Cursor="Hand"
+                   MouseLeftButtonDown="StartEditing_Click">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock Text="Тип: "/>
-                        <TextBlock Text="{Binding SelectedNote.LinkedType}" FontWeight="Bold"/>
-                    </StackPanel>
+        <TextBox Text="{Binding SelectedNote.Title, UpdateSourceTrigger=PropertyChanged}"
+                 FontSize="22" FontWeight="Bold"
+                 BorderThickness="0,0,0,1"
+                 LostFocus="TextBox_LostFocus">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock Text="Дата: "/>
-                        <TextBlock Text="{Binding SelectedNote.CreatedAt, StringFormat=dd.MM.yyyy HH:mm}"
-                                   FontWeight="Bold"/>
-                    </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,4">
+            <TextBlock Text="Тип: "/>
+            <TextBlock Text="{Binding SelectedNote.LinkedType}" FontWeight="Bold"/>
+        </StackPanel>
 
-                    <Separator Margin="0,12"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="Дата: "/>
+            <TextBlock Text="{Binding SelectedNote.CreatedAt, StringFormat=dd.MM.yyyy HH:mm}"
+                       FontWeight="Bold"/>
+        </StackPanel>
 
-                    <!-- Содержимое заметки -->
-                    <TextBlock Text="Заметка" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding SelectedNote.Content}"
-                               TextWrapping="Wrap"/>
+        <Separator Margin="0,0,0,12"/>
 
-                    <Separator Margin="0,12"/>
+        <TextBlock Text="Заметка" FontWeight="Bold" Margin="0,0,0,4"/>
 
-                    <!-- Связанный объект -->
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock Text="Связан с: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding LinkedObjectName}" FontWeight="Bold"/>
-                    </StackPanel>
+        <!-- Содержимое -->
+        <TextBlock Text="{Binding SelectedNote.Content}"
+                   TextWrapping="Wrap"
+                   Cursor="Hand"
+                   MinHeight="40"
+                   MouseLeftButtonDown="StartEditing_Click">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
-                    <TextBlock Text="Описание объекта" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding LinkedObjectDescription}" TextWrapping="Wrap"/>
+        <TextBox Text="{Binding SelectedNote.Content, UpdateSourceTrigger=PropertyChanged}"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 MinHeight="120"
+                 Padding="8"
+                 VerticalScrollBarVisibility="Auto"
+                 LostFocus="TextBox_LostFocus">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
 
-                </StackPanel>
-            </ScrollViewer>
+        <Separator Margin="0,12"/>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Связан с: " FontWeight="Bold"/>
+            <TextBlock Text="{Binding LinkedObjectName}" FontWeight="Bold"/>
+        </StackPanel>
+
+        <TextBlock Text="Описание объекта" FontWeight="Bold" Margin="0,0,0,4"/>
+        <TextBlock Text="{Binding LinkedObjectDescription}" TextWrapping="Wrap"/>
+
+    </StackPanel>
+</ScrollViewer>
 
         </Grid>
     </Grid>

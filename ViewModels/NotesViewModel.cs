@@ -15,8 +15,16 @@ namespace RPGManager.ViewModels
             {
                 _selectedNote = value;
                 OnPropertyChanged();
+                IsEditMode = false;
                 LoadLinkedObject();
             }
+        }
+
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set { _isEditMode = value; OnPropertyChanged(); }
         }
 
         private string _linkedObjectName = string.Empty;
@@ -92,6 +100,63 @@ namespace RPGManager.ViewModels
                     LinkedObjectDescription = string.Empty;
                     break;
             }
+        }
+        public void SaveNote()
+        {
+            if (SelectedNote == null) return;
+
+            using var db = DbContextFactory.Create();
+            var note = db.Notes.FirstOrDefault(n => n.Id == SelectedNote.Id);
+            if (note == null) return;
+
+            note.Title = SelectedNote.Title;
+            note.Content = SelectedNote.Content;
+            db.SaveChanges();
+        }
+
+        public void AddNote()
+        {
+            using var db = DbContextFactory.Create();
+            var note = new Note
+            {
+                Title = "Новая заметка",
+                Content = string.Empty,
+                CreatedAt = DateTime.Now,
+                LinkedType = null,
+                LinkedId = null
+            };
+            db.Notes.Add(note);
+            db.SaveChanges();
+
+            Notes.Add(note);
+            SelectedNote = note;
+        }
+
+        public void DeleteNote()
+        {
+            if (SelectedNote == null) return;
+
+            using var db = DbContextFactory.Create();
+            var note = db.Notes.FirstOrDefault(n => n.Id == SelectedNote.Id);
+            if (note == null) return;
+
+            db.Notes.Remove(note);
+            db.SaveChanges();
+
+            Notes.Remove(SelectedNote);
+            SelectedNote = Notes.FirstOrDefault();
+        }
+
+        public void ReloadSelectedNote()
+        {
+            if (SelectedNote == null) return;
+            using var db = DbContextFactory.Create();
+            var note = db.Notes.AsNoTracking().FirstOrDefault(n => n.Id == SelectedNote.Id);
+            if (note == null) return;
+            SelectedNote.Title = note.Title;
+            SelectedNote.Content = note.Content;
+            OnPropertyChanged(nameof(SelectedNote));
+            IsEditMode = false;
         }
     }
 }
