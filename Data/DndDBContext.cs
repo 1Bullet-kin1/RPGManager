@@ -68,6 +68,9 @@ public partial class DndDBContext : DbContext
             entity.HasOne(d => d.BaseLocation).WithMany(p => p.Factions)
                 .HasForeignKey(d => d.BaseLocationId)
                 .OnDelete(DeleteBehavior.SetNull);
+            entity.HasMany(f => f.Locations)
+                  .WithMany(l => l.Factions)
+                  .UsingEntity(j => j.ToTable("FactionLocations"));
         });
 
         modelBuilder.Entity<Location>(entity =>

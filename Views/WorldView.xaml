@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:RPGManager.Views"
              xmlns:helpers="clr-namespace:RPGManager.Helpers"
+             xmlns:models="clr-namespace:RPGManager.Models"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
@@ -17,7 +18,7 @@
 
         <!-- Панель инструментов -->
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
-            <Button Content="🌍 Добавить мир" Padding="8,4" Margin="0,0,8,0"
+            <Button Content="🌐 Добавить мир" Padding="8,4" Margin="0,0,8,0"
                     Click="AddWorld_Click"/>
             <Button Content="+ Континент" Padding="8,4" Margin="0,0,8,0"
                     Visibility="{Binding IsWorldSelected, Converter={StaticResource BoolToVis}}"
@@ -28,9 +29,6 @@
             <Button Content="+ Локация" Padding="8,4" Margin="0,0,8,0"
                     Visibility="{Binding IsRegionSelected, Converter={StaticResource BoolToVis}}"
                     Click="AddLocation_Click"/>
-            <Button Content="🗑 Удалить" Padding="8,4"
-                    Visibility="{Binding CanDelete, Converter={StaticResource BoolToVis}}"
-                    Click="Delete_Click"/>
         </StackPanel>
 
         <Grid>
@@ -39,153 +37,553 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Левая панель — список миров с Expander-ами -->
-            <ListBox Grid.Column="0"
-                     ItemsSource="{Binding Worlds}"
-                     SelectedItem="{Binding SelectedWorld}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Expander Margin="0,4">
-                            <Expander.Header>
-                                <!-- Клик на мир -->
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"
-                                           Cursor="Hand"
-                                           PreviewMouseLeftButtonDown="World_Click"
-                                           Tag="{Binding}"/>
-                            </Expander.Header>
+            <!-- Левая панель -->
+            <ScrollViewer Grid.Column="0">
+                <ItemsControl ItemsSource="{Binding Worlds}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
 
-                            <ItemsControl ItemsSource="{Binding Continents}" Margin="12,0,0,0">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Expander Margin="0,4">
-                                            <Expander.Header>
-                                                <!-- Клик на континент -->
-                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
-                                                           Cursor="Hand"
-                                                           PreviewMouseLeftButtonDown="Continent_Click"
-                                                           Tag="{Binding}"/>
-                                            </Expander.Header>
+                            <!-- МИР -->
+                            <StackPanel>
+                                <Border x:Name="WorldBorder" Padding="8,6" Cursor="Hand"
+                                        PreviewMouseLeftButtonDown="World_Click"
+                                        Tag="{Binding}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🌐 " FontSize="13"/>
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="13" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
 
-                                            <ItemsControl ItemsSource="{Binding Regions}" Margin="12,0,0,0">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Expander Margin="0,4">
-                                                            <Expander.Header>
-                                                                <!-- Клик на регион -->
-                                                                <TextBlock Text="{Binding Name}"
-                                                                           Cursor="Hand"
-                                                                           PreviewMouseLeftButtonDown="Region_Click"
-                                                                           Tag="{Binding}"/>
-                                                            </Expander.Header>
+                                <!-- Континенты -->
+                                <ItemsControl ItemsSource="{Binding Continents}" Margin="12,0,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Expander>
+                                                <Expander.Header>
+                                                    <Border Padding="4,4" Cursor="Hand"
+                                                            PreviewMouseLeftButtonDown="Continent_Click"
+                                                            Tag="{Binding}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="🌍 "/>
+                                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </Expander.Header>
 
-                                                            <ItemsControl ItemsSource="{Binding Locations}" Margin="12,0,0,0">
-                                                                <ItemsControl.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <!-- Клик на локацию -->
-                                                                        <TextBlock Cursor="Hand"
-                                                                                   Margin="0,2"
-                                                                                   PreviewMouseLeftButtonDown="Location_Click"
-                                                                                   Tag="{Binding}">
-                                                                            <Run Text="{Binding Name}"/>
-                                                                            <Run Text=" ("/>
-                                                                            <Run Text="{Binding Type}"/>
-                                                                            <Run Text=")"/>
-                                                                        </TextBlock>
-                                                                    </DataTemplate>
-                                                                </ItemsControl.ItemTemplate>
-                                                            </ItemsControl>
+                                                <!-- Регионы -->
+                                                <ItemsControl ItemsSource="{Binding Regions}" Margin="12,0,0,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Expander>
+                                                                <Expander.Header>
+                                                                    <Border Padding="4,4" Cursor="Hand"
+                                                                            PreviewMouseLeftButtonDown="Region_Click"
+                                                                            Tag="{Binding}">
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <TextBlock Text="🗺️ "/>
+                                                                            <TextBlock Text="{Binding Name}"/>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                </Expander.Header>
 
-                                                        </Expander>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
+                                                                <!-- Локации -->
+                                                                <ItemsControl ItemsSource="{Binding Locations}" Margin="12,0,0,0">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <Border Padding="4,3" Cursor="Hand"
+                                                                                    PreviewMouseLeftButtonDown="Location_Click"
+                                                                                    Tag="{Binding}">
+                                                                                <StackPanel Orientation="Horizontal">
+                                                                                    <TextBlock Text="📍 "/>
+                                                                                    <TextBlock Text="{Binding Name}"/>
+                                                                                    <TextBlock Text=" ("/>
+                                                                                    <TextBlock Text="{Binding Type}"/>
+                                                                                    <TextBlock Text=")"/>
+                                                                                </StackPanel>
+                                                                            </Border>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
 
-                                        </Expander>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                                            </Expander>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
 
-                        </Expander>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                                            </Expander>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
 
-            <!-- Правая панель — детали + редактирование -->
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Правая панель -->
             <Grid Grid.Column="1">
 
                 <TextBlock Text="Выберите элемент из списка"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
                            Visibility="{Binding SelectedItem,
                                Converter={StaticResource NullToVisibilityConverter},
                                ConverterParameter=inverse}"/>
 
-                <!-- Мир -->
+                <!-- КАРТОЧКА МИРА -->
                 <ScrollViewer Visibility="{Binding IsWorldSelected, Converter={StaticResource BoolToVis}}">
                     <StackPanel Margin="16" DataContext="{Binding SelectedItem}">
-                        <TextBlock Text="Мир" FontSize="12" Opacity="0.6"/>
+
+                        <DockPanel Margin="0,0,0,8">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="✏️" Padding="8,4" Margin="0,0,8,0"
+                                        Click="StartEdit"/>
+                                <Button Content="🗑️" Padding="8,4"
+                                        Click="Delete_Click"/>
+                            </StackPanel>
+                            <TextBlock Text="🌐 Мир" Opacity="0.6" VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <!-- Название — просмотр -->
+                        <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <!-- Название — редактирование -->
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                 FontSize="22" FontWeight="Bold"
-                                 BorderThickness="0,0,0,1" Margin="0,0,0,8"/>
-                        <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
+                                 FontSize="24" FontWeight="Bold" BorderThickness="0,0,0,1">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <Separator Margin="0,12"/>
+
+                        <!-- Описание — просмотр -->
+                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <!-- Описание — редактирование -->
                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                                 TextWrapping="Wrap" AcceptsReturn="True"
-                                 MinHeight="80" Padding="4"/>
-                        <Button Content="💾 Сохранить" Padding="12,6" Margin="0,12,0,0"
-                                HorizontalAlignment="Left" Click="Save_Click"/>
+                                 TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Padding="4">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <!-- Кнопки сохранить/отмена -->
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                    Visibility="{Binding DataContext.IsEditMode,
+                                        RelativeSource={RelativeSource AncestorType=UserControl},
+                                        Converter={StaticResource BoolToVis}}">
+                            <Button Content="💾 Сохранить" Padding="12,6" Margin="0,0,8,0"
+                                    Click="Save_Click"/>
+                            <Button Content="✖ Отмена" Padding="12,6"
+                                    Click="CancelEdit"/>
+                        </StackPanel>
+
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Континент -->
+                <!-- КАРТОЧКА КОНТИНЕНТА -->
                 <ScrollViewer Visibility="{Binding IsContinentSelected, Converter={StaticResource BoolToVis}}">
                     <StackPanel Margin="16" DataContext="{Binding SelectedItem}">
-                        <TextBlock Text="Континент" FontSize="12" Opacity="0.6"/>
+
+                        <DockPanel Margin="0,0,0,8">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="✏️" Padding="8,4" Margin="0,0,8,0"
+                                        Click="StartEdit"/>
+                                <Button Content="🗑️" Padding="8,4"
+                                        Click="Delete_Click"/>
+                            </StackPanel>
+                            <TextBlock Text="🌍 Континент" Opacity="0.6" VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                 FontSize="22" FontWeight="Bold"
-                                 BorderThickness="0,0,0,1" Margin="0,0,0,8"/>
-                        <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
+                                 FontSize="24" FontWeight="Bold" BorderThickness="0,0,0,1">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <Separator Margin="0,12"/>
+
+                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                                 TextWrapping="Wrap" AcceptsReturn="True"
-                                 MinHeight="80" Padding="4"/>
-                        <Button Content="💾 Сохранить" Padding="12,6" Margin="0,12,0,0"
-                                HorizontalAlignment="Left" Click="Save_Click"/>
+                                 TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Padding="4">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                    Visibility="{Binding DataContext.IsEditMode,
+                                        RelativeSource={RelativeSource AncestorType=UserControl},
+                                        Converter={StaticResource BoolToVis}}">
+                            <Button Content="💾 Сохранить" Padding="12,6" Margin="0,0,8,0"
+                                    Click="Save_Click"/>
+                            <Button Content="✖ Отмена" Padding="12,6"
+                                    Click="CancelEdit"/>
+                        </StackPanel>
+
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Регион -->
+                <!-- КАРТОЧКА РЕГИОНА -->
                 <ScrollViewer Visibility="{Binding IsRegionSelected, Converter={StaticResource BoolToVis}}">
                     <StackPanel Margin="16" DataContext="{Binding SelectedItem}">
-                        <TextBlock Text="Регион" FontSize="12" Opacity="0.6"/>
+
+                        <DockPanel Margin="0,0,0,8">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="✏️" Padding="8,4" Margin="0,0,8,0"
+                                        Click="StartEdit"/>
+                                <Button Content="🗑️" Padding="8,4"
+                                        Click="Delete_Click"/>
+                            </StackPanel>
+                            <TextBlock Text="🗺️ Регион" Opacity="0.6" VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                 FontSize="22" FontWeight="Bold"
-                                 BorderThickness="0,0,0,1" Margin="0,0,0,8"/>
-                        <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
+                                 FontSize="24" FontWeight="Bold" BorderThickness="0,0,0,1">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <Separator Margin="0,12"/>
+
+                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                                 TextWrapping="Wrap" AcceptsReturn="True"
-                                 MinHeight="80" Padding="4"/>
-                        <Button Content="💾 Сохранить" Padding="12,6" Margin="0,12,0,0"
-                                HorizontalAlignment="Left" Click="Save_Click"/>
+                                 TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Padding="4">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                    Visibility="{Binding DataContext.IsEditMode,
+                                        RelativeSource={RelativeSource AncestorType=UserControl},
+                                        Converter={StaticResource BoolToVis}}">
+                            <Button Content="💾 Сохранить" Padding="12,6" Margin="0,0,8,0"
+                                    Click="Save_Click"/>
+                            <Button Content="✖ Отмена" Padding="12,6"
+                                    Click="CancelEdit"/>
+                        </StackPanel>
+
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Локация -->
+                <!-- КАРТОЧКА ЛОКАЦИИ -->
                 <ScrollViewer Visibility="{Binding IsLocationSelected, Converter={StaticResource BoolToVis}}">
                     <StackPanel Margin="16" DataContext="{Binding SelectedItem}">
-                        <TextBlock Text="Локация" FontSize="12" Opacity="0.6"/>
+
+                        <DockPanel Margin="0,0,0,8">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="✏️" Padding="8,4" Margin="0,0,8,0"
+                                        Click="StartEdit"/>
+                                <Button Content="🗑️" Padding="8,4"
+                                        Click="Delete_Click"/>
+                            </StackPanel>
+                            <TextBlock Text="📍 Локация" Opacity="0.6" VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                 FontSize="22" FontWeight="Bold"
-                                 BorderThickness="0,0,0,1" Margin="0,0,0,8"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Text="Тип: " VerticalAlignment="Center"/>
+                                 FontSize="24" FontWeight="Bold" BorderThickness="0,0,0,1">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <!-- Тип локации -->
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="Тип: " VerticalAlignment="Center" Opacity="0.6"/>
+                            <TextBlock Text="{Binding Type}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                         Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                             <TextBox Text="{Binding Type, UpdateSourceTrigger=PropertyChanged}"
-                                     Width="150" Padding="4,2"/>
+                                     Width="150" Padding="4,2">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                         Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
                         </StackPanel>
-                        <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
+
+                        <Separator Margin="0,12"/>
+
+                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                                 TextWrapping="Wrap" AcceptsReturn="True"
-                                 MinHeight="80" Padding="4"/>
-                        <Button Content="💾 Сохранить" Padding="12,6" Margin="0,12,0,0"
-                                HorizontalAlignment="Left" Click="Save_Click"/>
+                                 TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Padding="4">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                    Visibility="{Binding DataContext.IsEditMode,
+                                        RelativeSource={RelativeSource AncestorType=UserControl},
+                                        Converter={StaticResource BoolToVis}}">
+                            <Button Content="💾 Сохранить" Padding="12,6" Margin="0,0,8,0"
+                                    Click="Save_Click"/>
+                            <Button Content="✖ Отмена" Padding="12,6"
+                                    Click="CancelEdit"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,12"/>
+
+                        <!-- NPC -->
+                        <TextBlock Text="👤 NPC" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding Npcs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <TextBlock Text="· "/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                        <TextBlock Text=" — "/>
+                                        <TextBlock Text="{Binding Race}"/>
+                                        <TextBlock Text=", "/>
+                                        <TextBlock Text="{Binding Class}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Separator Margin="0,12"/>
+
+                        <!-- Фракции -->
+                        <TextBlock Text="⚔️ Фракции" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding Factions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <TextBlock Text="· "/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                        <TextBlock Text=" — "/>
+                                        <TextBlock Text="{Binding Alignment}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Separator Margin="0,12"/>
+
+                        <!-- Квесты -->
+                        <TextBlock Text="📜 Квесты" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding Quests}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <TextBlock Text="· "/>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                        <TextBlock Text=" — "/>
+                                        <TextBlock Text="{Binding Status}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
                     </StackPanel>
                 </ScrollViewer>
 

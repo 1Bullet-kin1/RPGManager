@@ -55,6 +55,24 @@ namespace RPGManager.Views
             }
         }
 
+
+        public void StartEdit(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.IsEditMode = true;
+            }
+        }
+
+        public void CancelEdit(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.IsEditMode = false;
+                _viewModel.ReloadSelection();
+            }
+        }
+
         private void AddWorld_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (_viewModel != null)
@@ -97,6 +115,7 @@ namespace RPGManager.Views
         {
             if (_viewModel != null)
             {
+                _viewModel.IsEditMode = false;
                 _viewModel.SaveSelected();
             }
         }

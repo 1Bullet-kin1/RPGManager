@@ -14,8 +14,9 @@ public partial class Faction
     public string? Description { get; set; }
 
     public int? BaseLocationId { get; set; }
-
+    
     public virtual Location? BaseLocation { get; set; }
 
+    public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
     public virtual ICollection<Npc> Npcs { get; set; } = new List<Npc>();
 }

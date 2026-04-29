@@ -17,6 +17,13 @@ namespace RPGManager.ViewModels
             set { _selectedWorld = value; OnPropertyChanged(); }
         }
 
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set { _isEditMode = value; OnPropertyChanged(); }
+        }
+
         private object? _selectedItem;
         public object? SelectedItem
         {
@@ -25,6 +32,7 @@ namespace RPGManager.ViewModels
             {
                 _selectedItem = value;
                 OnPropertyChanged();
+                IsEditMode = false;
                 OnPropertyChanged(nameof(IsWorldSelected));
                 OnPropertyChanged(nameof(IsContinentSelected));
                 OnPropertyChanged(nameof(IsRegionSelected));
@@ -44,6 +52,14 @@ namespace RPGManager.ViewModels
             LoadWorlds();
         }
 
+        public void ReloadSelection()
+        {
+            if (SelectedWorld != null)
+            {
+                LoadWorlds();
+                IsEditMode = false;
+            }
+        }
         private void LoadWorlds()
         {
             using var db = DbContextFactory.Create();

@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RPGManager.Data;
 using RPGManager.Models;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace RPGManager.ViewModels
 {
@@ -20,11 +22,70 @@ namespace RPGManager.ViewModels
                 }
             }
         }
+
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                if (_isEditMode != value)
+                {
+                    _isEditMode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Npc? _npcToAdd;
+        public Npc? NpcToAdd
+        {
+            get => _npcToAdd;
+            set
+            {
+                if (_npcToAdd != value)
+                {
+                    _npcToAdd = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private Faction? _factionToAdd;
+        public Faction? FactionToAdd
+        {
+            get => _factionToAdd;
+            set
+            {
+                if (_factionToAdd != value)
+                {
+                    _factionToAdd = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private Quest? _questToAdd;
+        public Quest? QuestToAdd
+        {
+            get => _questToAdd;
+            set
+            {
+                if (_questToAdd != value)
+                {
+                    _questToAdd = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<Npc> AllNpcs { get; set; } = new ObservableCollection<Npc>();
+        public ObservableCollection<Faction> AllFactions { get; set; } = new ObservableCollection<Faction>();
+        public ObservableCollection<Quest> AllQuests { get; set; } = new ObservableCollection<Quest>();
         public ObservableCollection<Location> Locations { get; set; } = new ObservableCollection<Location>();
 
         public LocationViewModel()
         {
             LoadLocations();
+            LoadAllData();
         }
 
         private void LoadLocations()
@@ -40,6 +101,183 @@ namespace RPGManager.ViewModels
                 .ToList();
             Locations = new ObservableCollection<Location>(locations);
             OnPropertyChanged(nameof(Locations));
+        }
+
+        private void LoadAllData()
+        {
+            using var db = DbContextFactory.Create();
+            var npcs = db.Npcs.ToList();
+            AllNpcs = new ObservableCollection<Npc>(npcs);
+            OnPropertyChanged(nameof(AllNpcs));
+            var factions = db.Factions.ToList();
+            AllFactions = new ObservableCollection<Faction>(factions);
+            OnPropertyChanged(nameof(AllFactions));
+            var quests = db.Quests.ToList();
+            AllQuests = new ObservableCollection<Quest>(quests);
+            OnPropertyChanged(nameof(AllQuests));
+        }
+
+        public void SaveLocation()
+        {
+            if (SelectedLocation != null)
+            {
+                using var db = DbContextFactory.Create();
+                var loc = db.Locations.FirstOrDefault(l => l.Id == SelectedLocation.Id);
+                if (loc != null)
+                {
+                    loc.Name = SelectedLocation.Name;
+                    loc.Description = SelectedLocation.Description;
+                    loc.Type = SelectedLocation.Type;
+                    db.SaveChanges();
+                    LoadLocations();
+                    IsEditMode = false;
+                }
+            }
+        }
+
+        public void DeleteLocation()
+        {
+            if (SelectedLocation != null)
+            {
+                var result = MessageBox.Show($"Are you sure you want to delete {SelectedLocation.Name}?",
+                    "Confirm Delete", MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    using var db = DbContextFactory.Create();
+                    var loc = db.Locations.FirstOrDefault(l => l.Id == SelectedLocation.Id);
+                    if (loc != null)
+                    {
+                        db.Locations.Remove(loc);
+                        db.SaveChanges();
+                        Locations.Remove(SelectedLocation);
+                        LoadLocations();
+                        SelectedLocation = null;
+                    }
+                }
+            }
+        }
+        public void ReloadLocation()
+        {
+            if (SelectedLocation != null)
+            {
+                using var db = DbContextFactory.Create();
+                var loc = db.Locations
+                    .Include(l => l.Region)
+                        .ThenInclude(r => r.Continent)
+                            .ThenInclude(c => c.World)
+                    .Include(l => l.Npcs)
+                    .Include(l => l.Factions)
+                    .Include(l => l.Quests)
+                    .FirstOrDefault(l => l.Id == SelectedLocation.Id);
+                if (loc != null)
+                {
+                    var index = Locations.IndexOf(SelectedLocation);
+                    if (index >= 0) { Locations[index] = loc; }
+                    SelectedLocation = loc;
+                    IsEditMode = false;
+                }
+            }
+        }
+        public void AddNpc()
+        {
+            if (SelectedLocation == null || NpcToAdd == null) return;
+            if (SelectedLocation.Npcs.Any(n => n.Id == NpcToAdd.Id)) return;
+            using var db = DbContextFactory.Create();
+                    var npc = db.Npcs.FirstOrDefault(n => n.Id == NpcToAdd.Id);
+                    if (npc != null)
+                    {
+                        npc.LocationId = SelectedLocation.Id;
+                        db.SaveChanges();
+                        SelectedLocation.Npcs.Add(NpcToAdd);
+                        NpcToAdd = null;
+                        OnPropertyChanged(nameof(SelectedLocation));
+                    }    
+            
+        }
+        public void RemoveNpc(Npc npc)
+        {
+            if (SelectedLocation == null || npc == null) return;
+            
+                using var db = DbContextFactory.Create();
+                var npcToRemove = db.Npcs.FirstOrDefault(n => n.Id == npc.Id);
+                if (npcToRemove != null)
+                {
+                    npcToRemove.LocationId = null;
+                    db.SaveChanges();
+                    SelectedLocation.Npcs.Remove(npc);
+                    OnPropertyChanged(nameof(SelectedLocation));
+                }
+            
+        }
+        public void AddFaction()
+        {
+            if (SelectedLocation == null || FactionToAdd == null) return;
+            if (SelectedLocation.Factions.Any(f => f.Id == FactionToAdd.Id)) return;
+            using var db = DbContextFactory.Create();
+                    var loc = db.Locations.Include(l => l.Factions).FirstOrDefault(l => l.Id == SelectedLocation.Id);
+                    var faction = db.Factions.FirstOrDefault(f => f.Id == FactionToAdd.Id);
+                    if (faction != null && loc != null)
+                    {
+                        faction.BaseLocationId = SelectedLocation.Id;
+                        loc.Factions.Add(faction);
+                        db.SaveChanges();
+                        SelectedLocation.Factions.Add(FactionToAdd);
+                        FactionToAdd = null;
+                        OnPropertyChanged(nameof(SelectedLocation));
+                    }
+                
+            
+        }
+        public void RemoveFaction(Faction faction)
+        {
+            if (SelectedLocation != null || faction != null)
+            {
+                using var db = DbContextFactory.Create();
+                var loc = db.Locations.Include(l => l.Factions).FirstOrDefault(l => l.Id == SelectedLocation.Id);
+                var factionToRemove = db.Factions.FirstOrDefault(f => f.Id == faction.Id);
+                if (factionToRemove != null && loc != null)
+                {
+                    loc.Factions.Remove(factionToRemove);
+                    factionToRemove.BaseLocationId = null;
+                    db.SaveChanges();
+                    SelectedLocation.Factions.Remove(faction);
+                    OnPropertyChanged(nameof(SelectedLocation));
+                }
+            }
+        }
+        public void AddQuest()
+        {
+            if (SelectedLocation == null && QuestToAdd == null) return;
+            if (SelectedLocation.Quests.Any(q => q.Id == QuestToAdd.Id)) return;
+
+                using var db = DbContextFactory.Create();
+                    var quest = db.Quests.FirstOrDefault(q => q.Id == QuestToAdd.Id);
+                    if (quest != null)
+                    {
+                        quest.LocationId = SelectedLocation.Id;
+                        db.SaveChanges();
+                        SelectedLocation.Quests.Add(QuestToAdd);
+                        QuestToAdd = null;
+                        OnPropertyChanged(nameof(SelectedLocation));
+                    }
+                
+            
+        }
+        public void RemoveQuest(Quest quest)
+        {
+            if (SelectedLocation != null && quest != null)
+            {
+                using var db = DbContextFactory.Create();
+                var questToRemove = db.Quests.FirstOrDefault(q => q.Id == quest.Id);
+                if (questToRemove != null)
+                {
+                    questToRemove.LocationId = null;
+                    db.SaveChanges();
+                    SelectedLocation.Quests.Remove(quest);
+                    OnPropertyChanged(nameof(SelectedLocation));
+                }
+            }
         }
     }
 }

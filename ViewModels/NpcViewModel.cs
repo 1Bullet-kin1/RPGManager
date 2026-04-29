@@ -1,4 +1,5 @@
-﻿using RPGManager.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using RPGManager.Data;
 using RPGManager.Models;
 using System.Collections.ObjectModel;
 
@@ -23,7 +24,8 @@ namespace RPGManager.ViewModels
         private void LoadNpcs()
         {
             using var db = DbContextFactory.Create();
-            var npcs = db.Npcs.ToList();
+            var npcs = db.Npcs
+                .ToList();
             NpcList = new ObservableCollection<Npc>(npcs);
             OnPropertyChanged(nameof(NpcList));
         }
