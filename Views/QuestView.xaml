@@ -9,6 +9,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
 
     <Grid>
@@ -17,59 +18,202 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Список квестов -->
-        <ListBox Grid.Column="0"
-                 ItemsSource="{Binding Quests}"
-                 SelectedItem="{Binding SelectedQuest}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Margin="4">
-                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Status}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <!-- Левая панель -->
+        <DockPanel Grid.Column="0">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
+                <Button Content="+ Создать" Padding="8,4"
+                        Click="AddQuest_Click"/>
+            </StackPanel>
+
+            <ListBox ItemsSource="{Binding Quests}"
+                     SelectedItem="{Binding SelectedQuest}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="4">
+                            <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Status}" Opacity="0.6"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
 
         <!-- Правая панель -->
         <Grid Grid.Column="1">
 
             <TextBlock Text="Выберите квест из списка"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
                        Visibility="{Binding SelectedQuest,
                            Converter={StaticResource NullToVisibilityConverter},
                            ConverterParameter=inverse}"/>
 
             <ScrollViewer Visibility="{Binding SelectedQuest,
                               Converter={StaticResource NullToVisibilityConverter}}">
-                <StackPanel Margin="16" DataContext="{Binding SelectedQuest}">
+                <StackPanel Margin="16">
 
-                    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold"/>
+                    <!-- Заголовок + кнопки -->
+                    <DockPanel Margin="0,0,0,8">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="✏️" Padding="8,4" Margin="0,0,8,0"
+                                    Click="StartEditing_Click"/>
+                            <Button Content="🗑️" Padding="8,4"
+                                    Click="DeleteQuest_Click"/>
+                        </StackPanel>
+                        <TextBlock Text="📜 Квест" Opacity="0.6" VerticalAlignment="Center"/>
+                    </DockPanel>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="Статус: "/>
-                        <TextBlock Text="{Binding Status}" FontWeight="Bold"/>
+                    <!-- Название -->
+                    <TextBlock Text="{Binding SelectedQuest.Title}"
+                               FontSize="24" FontWeight="Bold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedQuest.Title, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="24" FontWeight="Bold" BorderThickness="0,0,0,1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+
+                    <!-- Статус — кнопки переключения -->
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Text="Статус: " VerticalAlignment="Center" Opacity="0.6"/>
+                        <Button Content="не взят" Padding="8,4" Margin="0,0,4,0"
+                                Click="SetStatusNotTaken_Click"/>
+                        <Button Content="активный" Padding="8,4" Margin="0,0,4,0"
+                                Click="SetStatusActive_Click"/>
+                        <Button Content="завершён" Padding="8,4" Margin="0,0,4,0"
+                                Click="SetStatusDone_Click"/>
+                        <Button Content="провален" Padding="8,4"
+                                Click="SetStatusFailed_Click"/>
                     </StackPanel>
 
+                    <!-- Текущий статус -->
                     <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock Text="Квестодатель: "/>
-                        <TextBlock Text="{Binding QuestGiver.Name}" FontWeight="Bold"/>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock Text="Локация: "/>
-                        <TextBlock Text="{Binding Location.Name}" FontWeight="Bold"/>
+                        <TextBlock Text="Текущий: " Opacity="0.6"/>
+                        <TextBlock Text="{Binding SelectedQuest.Status}" FontWeight="Bold"/>
                     </StackPanel>
 
                     <Separator Margin="0,12"/>
 
+                    <!-- Квестодатель — просмотр -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="Квестодатель: " Opacity="0.6"/>
+                        <TextBlock Text="{Binding SelectedQuest.QuestGiver.Name}" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <ComboBox ItemsSource="{Binding Npcs}"
+                                  SelectedItem="{Binding SelectedQuest.QuestGiver}"
+                                  DisplayMemberPath="Name" MinWidth="150">
+                            <ComboBox.Style>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ComboBox.Style>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Локация — просмотр -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="Локация: " Opacity="0.6"/>
+                        <TextBlock Text="{Binding SelectedQuest.Location.Name}" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <ComboBox ItemsSource="{Binding Locations}"
+                                  SelectedItem="{Binding SelectedQuest.Location}"
+                                  DisplayMemberPath="Name" MinWidth="150">
+                            <ComboBox.Style>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ComboBox.Style>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <Separator Margin="0,0,0,12"/>
+
+                    <!-- Описание -->
                     <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding SelectedQuest.Description}" TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedQuest.Description, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Padding="4">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+
+                    <!-- Кнопки сохранить/отмена -->
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}">
+                        <Button Content="💾 Сохранить" Padding="12,6" Margin="0,0,8,0"
+                                Click="Save_Click"/>
+                        <Button Content="✖ Отмена" Padding="12,6"
+                                Click="CancelEditing_Click"/>
+                    </StackPanel>
 
                 </StackPanel>
             </ScrollViewer>
-
         </Grid>
     </Grid>
 </UserControl>
