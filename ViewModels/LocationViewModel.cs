@@ -90,17 +90,25 @@ namespace RPGManager.ViewModels
 
         private void LoadLocations()
         {
-            using var db = DbContextFactory.Create();
-            var locations = db.Locations
-                .Include(l => l.Region)
-                    .ThenInclude(r => r.Continent)
-                        .ThenInclude(c => c.World)
-                .Include(l => l.Npcs)
-                .Include(l => l.Factions)
-                .Include(l => l.Quests)
-                .ToList();
-            Locations = new ObservableCollection<Location>(locations);
-            OnPropertyChanged(nameof(Locations));
+            try
+            {
+                using var db = DbContextFactory.Create();
+                var locations = db.Locations
+                    .Include(l => l.Region)
+                        .ThenInclude(r => r.Continent)
+                            .ThenInclude(c => c.World)
+                    .Include(l => l.Npcs)
+                    .Include(l => l.Factions)
+                    .Include(l => l.PresentFactions)
+                    .Include(l => l.Quests)
+                    .ToList();
+                Locations = new ObservableCollection<Location>(locations);
+                OnPropertyChanged(nameof(Locations));
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, "Ошибка загрузки локаций");
+            }
         }
 
         private void LoadAllData()
@@ -168,6 +176,7 @@ namespace RPGManager.ViewModels
                             .ThenInclude(c => c.World)
                     .Include(l => l.Npcs)
                     .Include(l => l.Factions)
+                    .Include(l => l.PresentFactions)
                     .Include(l => l.Quests)
                     .FirstOrDefault(l => l.Id == SelectedLocation.Id);
                 if (loc != null)
@@ -189,9 +198,9 @@ namespace RPGManager.ViewModels
                     {
                         npc.LocationId = SelectedLocation.Id;
                         db.SaveChanges();
-                        SelectedLocation.Npcs.Add(NpcToAdd);
+                        ReloadLocation();
                         NpcToAdd = null;
-                        OnPropertyChanged(nameof(SelectedLocation));
+                        
                     }    
             
         }
@@ -205,50 +214,51 @@ namespace RPGManager.ViewModels
                 {
                     npcToRemove.LocationId = null;
                     db.SaveChanges();
-                    SelectedLocation.Npcs.Remove(npc);
-                    OnPropertyChanged(nameof(SelectedLocation));
+                    ReloadLocation();
                 }
             
         }
         public void AddFaction()
         {
-            if (SelectedLocation == null || FactionToAdd == null) return;
-            if (SelectedLocation.Factions.Any(f => f.Id == FactionToAdd.Id)) return;
-            using var db = DbContextFactory.Create();
-                    var loc = db.Locations.Include(l => l.Factions).FirstOrDefault(l => l.Id == SelectedLocation.Id);
-                    var faction = db.Factions.FirstOrDefault(f => f.Id == FactionToAdd.Id);
-                    if (faction != null && loc != null)
-                    {
-                        faction.BaseLocationId = SelectedLocation.Id;
-                        loc.Factions.Add(faction);
-                        db.SaveChanges();
-                        SelectedLocation.Factions.Add(FactionToAdd);
-                        FactionToAdd = null;
-                        OnPropertyChanged(nameof(SelectedLocation));
-                    }
-                
-            
+            try
+            {
+                if (SelectedLocation == null || FactionToAdd == null) return;
+                if (SelectedLocation.PresentFactions.Any(f => f.Id == FactionToAdd.Id)) return;
+                using var db = DbContextFactory.Create();
+                var loc = db.Locations.Include(l => l.PresentFactions).FirstOrDefault(l => l.Id == SelectedLocation.Id);
+                var faction = db.Factions.FirstOrDefault(f => f.Id == FactionToAdd.Id);
+                if (faction != null && loc != null)
+                {
+                    loc.PresentFactions.Add(faction);
+                    db.SaveChanges();  
+                    FactionToAdd = null;
+                    ReloadLocation();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка добавления фракции");
+            }
         }
         public void RemoveFaction(Faction faction)
         {
-            if (SelectedLocation != null || faction != null)
-            {
+            if (SelectedLocation == null || faction == null) return;
+            
                 using var db = DbContextFactory.Create();
-                var loc = db.Locations.Include(l => l.Factions).FirstOrDefault(l => l.Id == SelectedLocation.Id);
+                var loc = db.Locations.Include(l => l.PresentFactions).FirstOrDefault(l => l.Id == SelectedLocation.Id);
                 var factionToRemove = db.Factions.FirstOrDefault(f => f.Id == faction.Id);
                 if (factionToRemove != null && loc != null)
                 {
-                    loc.Factions.Remove(factionToRemove);
-                    factionToRemove.BaseLocationId = null;
+                    loc.PresentFactions.Remove(factionToRemove);
                     db.SaveChanges();
-                    SelectedLocation.Factions.Remove(faction);
-                    OnPropertyChanged(nameof(SelectedLocation));
-                }
+                    ReloadLocation();
             }
         }
+        
         public void AddQuest()
         {
-            if (SelectedLocation == null && QuestToAdd == null) return;
+            if (SelectedLocation == null || QuestToAdd == null) return;
             if (SelectedLocation.Quests.Any(q => q.Id == QuestToAdd.Id)) return;
 
                 using var db = DbContextFactory.Create();
@@ -257,9 +267,8 @@ namespace RPGManager.ViewModels
                     {
                         quest.LocationId = SelectedLocation.Id;
                         db.SaveChanges();
-                        SelectedLocation.Quests.Add(QuestToAdd);
                         QuestToAdd = null;
-                        OnPropertyChanged(nameof(SelectedLocation));
+                        ReloadLocation();
                     }
                 
             
@@ -274,8 +283,7 @@ namespace RPGManager.ViewModels
                 {
                     questToRemove.LocationId = null;
                     db.SaveChanges();
-                    SelectedLocation.Quests.Remove(quest);
-                    OnPropertyChanged(nameof(SelectedLocation));
+                    ReloadLocation();
                 }
             }
         }

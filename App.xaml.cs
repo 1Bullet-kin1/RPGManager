@@ -1,4 +1,5 @@
-﻿using RPGManager.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using RPGManager.Data;
 using System.Windows;
 
 namespace RPGManager;
@@ -9,7 +10,7 @@ public partial class App : Application
    {
             base.OnStartup(e);
             using var db = DbContextFactory.Create();
-            db.Database.EnsureCreated();
-   }
+            db.Database.Migrate();
+    }
 }
 

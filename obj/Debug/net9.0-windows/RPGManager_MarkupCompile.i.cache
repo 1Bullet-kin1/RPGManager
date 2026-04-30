@@ -12,9 +12,9 @@ TRACE;DEBUG;NET;NET9_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR
 D:\Code\Практика\RPG\RPGManager\App.xaml
 81601917988
 
-4228266204
+45-682836507
 218175951585
 MainWindow.xaml;Views\DashboardView.xaml;Views\FactionView.xaml;Views\LocationView.xaml;Views\NotesView.xaml;Views\NpcView.xaml;Views\QuestView.xaml;Views\WorldView.xaml;
 
-True
+False
 

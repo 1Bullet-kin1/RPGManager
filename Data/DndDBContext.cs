@@ -69,7 +69,7 @@ public partial class DndDBContext : DbContext
                 .HasForeignKey(d => d.BaseLocationId)
                 .OnDelete(DeleteBehavior.SetNull);
             entity.HasMany(f => f.Locations)
-                  .WithMany(l => l.Factions)
+                  .WithMany(l => l.PresentFactions)
                   .UsingEntity(j => j.ToTable("FactionLocations"));
         });
 

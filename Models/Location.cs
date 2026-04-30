@@ -16,6 +16,7 @@ public partial class Location
     public int RegionId { get; set; }
 
     public virtual ICollection<Faction> Factions { get; set; } = new List<Faction>();
+    public virtual ICollection<Faction> PresentFactions { get; set; } = new List<Faction>(); 
 
     public virtual ICollection<Npc> Npcs { get; set; } = new List<Npc>();
 
