@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using RPGManager.Models;
 using RPGManager.ViewModels;
 
 
@@ -12,45 +13,85 @@ namespace RPGManager.Views
         {
             InitializeComponent();
         }
-        private NotesViewModel? Vm => DataContext as NotesViewModel;
+        private NotesViewModel? _viewModel => DataContext as NotesViewModel;
 
-        private void SaveNote_Click(object sender, System.Windows.RoutedEventArgs e)
-            => Vm?.SaveNote();
-
-        private void AddNote_Click(object sender, System.Windows.RoutedEventArgs e)
-            => Vm?.AddNote();
-
-        private void DeleteNote_Click(object sender, System.Windows.RoutedEventArgs e)
-            => Vm?.DeleteNote();
-
-
-        private void StartEditing_Click(object sender, MouseButtonEventArgs e)
+        private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (Vm != null) Vm.IsEditMode = true;
+            if (_viewModel != null)
+            {
+                _viewModel.SaveNote();
+            }
         }
 
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        private void AddNote_Click(object sender, RoutedEventArgs e)
         {
-            if (Vm == null || !Vm.IsEditMode) return;
-
-            if (sender is TextBox tb)
+            if (_viewModel != null)
             {
-                var focused = FocusManager.GetFocusedElement(FocusManager.GetFocusScope(tb));
-                if (focused is TextBox) return;
+                _viewModel.AddNote();
             }
+        }
+        private void DeleteNote_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.DeleteNote();
+            }
+        }
 
-            var result = MessageBox.Show(
-                "Сохранить изменения?",
-                "Редактирование заметки",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-                Vm.SaveNote();
-            else
-                Vm.ReloadSelectedNote();
-
-            Vm.IsEditMode = false;
+        private void StartEditing_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.IsEditMode = true;
+            }
+        }
+        private void CancelEditing_Click(Object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.ReloadSelectedNote();
+                _viewModel.IsEditMode = false;
+            }
+        }
+        private void LinkedNpc_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                if (sender is ComboBox cb && cb.SelectedItem is Npc npc && _viewModel.SelectedNote != null)
+                {
+                    _viewModel.SelectedNote.LinkedId = npc.Id;
+                }
+            }
+        }
+        private void LinkedLocation_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                if (sender is ComboBox cb && cb.SelectedItem is Location loc && _viewModel.SelectedNote != null)
+                {
+                    _viewModel.SelectedNote.LinkedId = loc.Id;
+                }
+            }
+        }
+        private void LinkedQuest_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                if (sender is ComboBox cb && cb.SelectedItem is Quest quest && _viewModel.SelectedNote != null)
+                {
+                    _viewModel.SelectedNote.LinkedId = quest.Id;
+                }
+            }
+        }
+        private void LinkedFaction_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                if (sender is ComboBox cb && cb.SelectedItem is Faction faction && _viewModel.SelectedNote != null)
+                {
+                    _viewModel.SelectedNote.LinkedId = faction.Id;
+                }
+            }
         }
     }
 }

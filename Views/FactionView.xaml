@@ -9,6 +9,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
 
     <Grid>
@@ -17,94 +18,258 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Список фракций -->
-        <ListBox Grid.Column="0"
-                 ItemsSource="{Binding Factions}"
-                 SelectedItem="{Binding SelectedFaction}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Margin="4">
-                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Alignment}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <!-- Левая панель -->
+        <DockPanel Grid.Column="0">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
+                <Button Content="+ Создать" Padding="8,4"
+                        Click="AddFaction_Click"/>
+            </StackPanel>
+            <ListBox ItemsSource="{Binding Factions}"
+                     SelectedItem="{Binding SelectedFaction}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="4">
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Alignment}" Opacity="0.6"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
 
         <!-- Правая панель -->
         <Grid Grid.Column="1">
 
             <TextBlock Text="Выберите фракцию из списка"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
                        Visibility="{Binding SelectedFaction,
                            Converter={StaticResource NullToVisibilityConverter},
                            ConverterParameter=inverse}"/>
 
             <ScrollViewer Visibility="{Binding SelectedFaction,
                               Converter={StaticResource NullToVisibilityConverter}}">
-                <StackPanel Margin="16" DataContext="{Binding SelectedFaction}">
+                <StackPanel Margin="16">
+
+                    <!-- Заголовок + кнопки -->
+                    <DockPanel Margin="0,0,0,8">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="✏️" Padding="8,4" Margin="0,0,8,0"
+                                    Click="StartEditing_Click"/>
+                            <Button Content="🗑️" Padding="8,4"
+                                    Click="DeleteFaction_Click"/>
+                        </StackPanel>
+                        <TextBlock Text="⚔️ Фракция" Opacity="0.6" VerticalAlignment="Center"/>
+                    </DockPanel>
 
                     <!-- Название -->
-                    <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold"/>
-                    <TextBlock Text="{Binding Alignment}" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding SelectedFaction.Name}"
+                               FontSize="24" FontWeight="Bold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedFaction.Name, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="24" FontWeight="Bold" BorderThickness="0,0,0,1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
 
-                    <Separator Margin="0,12"/>
-
-                    <!-- Расположение -->
-                    <TextBlock Text="Расположение" FontWeight="Bold" Margin="0,0,0,8"/>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,2">
-                        <TextBlock Text="База: "/>
-                        <TextBlock Text="{Binding BaseLocation.Name}" FontWeight="Bold"/>
+                    <!-- Мировоззрение -->
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Text="Мировоззрение: " Opacity="0.6" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding SelectedFaction.Alignment}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBox Text="{Binding SelectedFaction.Alignment, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="200" Padding="4,2">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,2">
-                        <TextBlock Text="Регион: "/>
-                        <TextBlock Text="{Binding BaseLocation.Region.Name}" FontWeight="Bold"/>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,2">
-                        <TextBlock Text="Континент: "/>
-                        <TextBlock Text="{Binding BaseLocation.Region.Continent.Name}" FontWeight="Bold"/>
+                    <!-- База -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="База: " Opacity="0.6" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding SelectedFaction.BaseLocation.Name}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <ComboBox ItemsSource="{Binding DataContext.Locations,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  SelectedItem="{Binding DataContext.SelectedFaction.BaseLocation,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  DisplayMemberPath="Name" MinWidth="150">
+                            <ComboBox.Style>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ComboBox.Style>
+                        </ComboBox>
                     </StackPanel>
 
                     <Separator Margin="0,12"/>
 
                     <!-- Описание -->
                     <TextBlock Text="Описание" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding SelectedFaction.Description}" TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBox Text="{Binding SelectedFaction.Description, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Padding="4">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+
+                    <!-- Кнопки сохранить/отмена -->
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}">
+                        <Button Content="💾 Сохранить" Padding="12,6" Margin="0,0,8,0"
+                                Click="Save_Click"/>
+                        <Button Content="✖ Отмена" Padding="12,6"
+                                Click="CancelEditing_Click"/>
+                    </StackPanel>
 
                     <Separator Margin="0,12"/>
 
                     <!-- Участники -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock Text="Участники — " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Npcs.Count}" FontWeight="Bold"/>
+                        <TextBlock Text="👤 Участники — " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding SelectedFaction.Npcs.Count}" FontWeight="Bold"/>
                         <TextBlock Text=" чел."/>
                     </StackPanel>
 
-                    <ItemsControl ItemsSource="{Binding Npcs}">
+                    <ItemsControl ItemsSource="{Binding SelectedFaction.Npcs}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="0,3">
-                                    <TextBlock Text="· "/>
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                                    <TextBlock Text=" — "/>
-                                    <TextBlock Text="{Binding Race}"/>
-                                    <TextBlock Text=", "/>
-                                    <TextBlock Text="{Binding Class}"/>
-                                    <TextBlock Text=", "/>
-                                    <TextBlock Text="{Binding Level}"/>
-                                    <TextBlock Text=" ур."/>
-                                </StackPanel>
+                                <DockPanel Margin="0,2">
+                                    <Button DockPanel.Dock="Right" Content="✖" Padding="4,2"
+                                            Tag="{Binding}"
+                                            Click="RemoveNpc_Click"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="· "/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                        <TextBlock Text=" — "/>
+                                        <TextBlock Text="{Binding Race}"/>
+                                        <TextBlock Text=", "/>
+                                        <TextBlock Text="{Binding Class}"/>
+                                        <TextBlock Text=", "/>
+                                        <TextBlock Text="{Binding Level}"/>
+                                        <TextBlock Text=" ур."/>
+                                    </StackPanel>
+                                </DockPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
+                    <DockPanel Margin="0,8,0,0">
+                        <Button DockPanel.Dock="Right" Content="+ Добавить" Padding="8,4"
+                                Click="AddNpc_Click"/>
+                        <ComboBox ItemsSource="{Binding DataContext.Npcs,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  SelectedItem="{Binding DataContext.NpcToAdd,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  DisplayMemberPath="Name"
+                                  Margin="0,0,8,0"/>
+                    </DockPanel>
+                    <Separator Margin="0,12"/>
+
+                    <!-- Локации присутствия -->
+                    <TextBlock Text="📍 Локации присутствия" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                    <ItemsControl ItemsSource="{Binding SelectedFaction.Locations}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,2">
+                                    <Button DockPanel.Dock="Right" Content="✖" Padding="4,2"
+                        Tag="{Binding}"
+                        Click="RemoveLocation_Click"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="· "/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                        <TextBlock Text=" — "/>
+                                        <TextBlock Text="{Binding Type}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <DockPanel Margin="0,8,0,0">
+                        <Button DockPanel.Dock="Right" Content="+ Добавить" Padding="8,4"
+                                Click="AddLocation_Click"/>
+                        <ComboBox ItemsSource="{Binding DataContext.Locations,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  SelectedItem="{Binding DataContext.LocationToAdd,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  DisplayMemberPath="Name"
+                                  Margin="0,0,8,0"/>
+                    </DockPanel>
                 </StackPanel>
             </ScrollViewer>
-
         </Grid>
     </Grid>
 </UserControl>

@@ -16,5 +16,5 @@ D:\Code\Практика\RPG\RPGManager\App.xaml
 218175951585
 MainWindow.xaml;Views\DashboardView.xaml;Views\FactionView.xaml;Views\LocationView.xaml;Views\NotesView.xaml;Views\NpcView.xaml;Views\QuestView.xaml;Views\WorldView.xaml;
 
-False
+True
 
