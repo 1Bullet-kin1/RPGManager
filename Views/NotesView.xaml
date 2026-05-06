@@ -154,16 +154,20 @@
                         <ComboBox ItemsSource="{Binding DataContext.AllNpcs,
                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   DisplayMemberPath="Name" MinWidth="150"
-                                  SelectionChanged="LinkedNpc_SelectionChanged">
+                                  SelectionChanged="LinkedNpc_SelectionChanged">        
                             <ComboBox.Style>
                                 <Style TargetType="ComboBox">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding DataContext.SelectedNote.LinkedType,
-                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                     Value="NPC">
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsEditMode}" Value="True"/>
+                                                <Condition Binding="{Binding DataContext.SelectedNote.LinkedType,
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Value="NPC"/>    
+                                            </MultiDataTrigger.Conditions>
                                             <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
+                                        </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ComboBox.Style>
@@ -178,11 +182,15 @@
                                 <Style TargetType="ComboBox">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding DataContext.SelectedNote.LinkedType,
+                                        <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsEditMode}" Value="True"/>
+                                                <Condition Binding="{Binding DataContext.SelectedNote.LinkedType,
                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                     Value="Location">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
+                                                     Value="Location"/>
+                                            </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ComboBox.Style>
@@ -197,11 +205,16 @@
                                 <Style TargetType="ComboBox">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding DataContext.SelectedNote.LinkedType,
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsEditMode}" Value="True"/>
+                                                <Condition Binding="{Binding DataContext.SelectedNote.LinkedType,
                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                     Value="Quest">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
+                                                     Value="Quest"/>
+
+                                            </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ComboBox.Style>
@@ -216,11 +229,16 @@
                                 <Style TargetType="ComboBox">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding DataContext.SelectedNote.LinkedType,
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsEditMode}" Value="True"/>
+                                                <Condition Binding="{Binding DataContext.SelectedNote.LinkedType,
                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                     Value="Faction">
+                                                     Value="Faction"/>
+                                            
+                                            </MultiDataTrigger.Conditions>
                                             <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
+                                        </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ComboBox.Style>
