@@ -12,7 +12,11 @@ namespace RPGManager.ViewModels
         public Npc? SelectedNpc
         {
             get => _selectedNpc;
-            set { _selectedNpc = value; OnPropertyChanged(); }
+            set { 
+                _selectedNpc = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsPinned));
+                }
         }
         private bool _isEditMode;
         public bool IsEditMode
@@ -36,9 +40,28 @@ namespace RPGManager.ViewModels
                 return db.PinnedNpcs.Any(p => p.NpcId == SelectedNpc.Id);
             }
         }
+        private Npc? _relatedNpcToAdd;
+        public Npc? RelatedNpcToAdd
+        {
+            get => _relatedNpcToAdd;
+            set { _relatedNpcToAdd = value; OnPropertyChanged(); }
+        }
+
+        private string _relationTypeToAdd = string.Empty;
+        public string RelationTypeToAdd
+        {
+            get => _relationTypeToAdd;
+            set { _relationTypeToAdd = value; OnPropertyChanged(); }
+        }
+
+        public List<string> RelationTypes { get; } = new()
+        {
+            "союзник", "враг", "родственник", "наставник", "соперник", "друг"
+        };
         public ObservableCollection<Npc> NpcList { get; set; } = new();
         public ObservableCollection<Faction> AllFactions { get; set; } = new();
         public ObservableCollection<Location> AllLocations { get; set; } = new();
+        public ObservableCollection<Npc> AllNpcs { get; set; } = new();
 
         public NpcViewModel()
         {
@@ -62,6 +85,7 @@ namespace RPGManager.ViewModels
                 .ToList();
             NpcList = new ObservableCollection<Npc>(npcs);
             OnPropertyChanged(nameof(NpcList));
+            OnPropertyChanged(nameof(IsPinned));
         }
 
         private void LoadAllData()
@@ -69,8 +93,10 @@ namespace RPGManager.ViewModels
             using var db = DbContextFactory.Create();
             AllFactions = new ObservableCollection<Faction>(db.Factions.ToList());
             AllLocations = new ObservableCollection<Location>(db.Locations.ToList());
+            AllNpcs = new ObservableCollection<Npc>(db.Npcs.ToList());
             OnPropertyChanged(nameof(AllFactions));
             OnPropertyChanged(nameof(AllLocations));
+            OnPropertyChanged(nameof(AllNpcs));
         }
 
         public void AddNpc()
@@ -180,6 +206,72 @@ namespace RPGManager.ViewModels
             }
 
             OnPropertyChanged(nameof(IsPinned));
+        }
+        /// <summary>
+        /// Adds a new relation between the selected NPC and another NPC.
+        /// Skips if the relation already exists in either direction.
+        /// </summary>
+        public void AddRelation()
+        {
+            if (SelectedNpc == null || RelatedNpcToAdd == null) return;
+            if (string.IsNullOrWhiteSpace(RelationTypeToAdd)) return;
+
+            // Check if relation already exists in either direction
+            var alreadyExists =
+                SelectedNpc.NpcrelationNpcId1Navigations.Any(r => r.NpcId2 == RelatedNpcToAdd.Id) ||
+                SelectedNpc.NpcrelationNpcId2Navigations.Any(r => r.NpcId1 == RelatedNpcToAdd.Id);
+
+            if (alreadyExists)
+            {
+                MessageBox.Show(
+                    $"Отношение с «{RelatedNpcToAdd.Name}» уже существует.",
+                    "Дублирование",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            using var db = DbContextFactory.Create();
+            var relation = new Npcrelation
+            {
+                NpcId1 = SelectedNpc.Id,
+                NpcId2 = RelatedNpcToAdd.Id,
+                RelationType = RelationTypeToAdd
+            };
+            db.Npcrelations.Add(relation);
+            db.SaveChanges();
+
+            RelatedNpcToAdd = null;
+            RelationTypeToAdd = string.Empty;
+            ReloadNpc();
+        }
+
+        /// <summary>
+        /// Removes the specified relation between the selected NPC and another NPC.
+        /// </summary>
+        public void RemoveRelation(Npcrelation relation)
+        {
+            if (SelectedNpc == null || relation == null) return;
+
+            using var db = DbContextFactory.Create();
+            var dbRelation = db.Npcrelations.FirstOrDefault(r => r.Id == relation.Id);
+            if (dbRelation == null) return;
+
+            db.Npcrelations.Remove(dbRelation);
+            db.SaveChanges();
+            ReloadNpc();
+        }
+        /// <summary>
+        /// Updates the relation type of an existing NPC relation in the database.
+        /// </summary>
+        public void UpdateRelationType(Npcrelation relation, string newType)
+        {
+            using var db = DbContextFactory.Create();
+            var dbRelation = db.Npcrelations.FirstOrDefault(r => r.Id == relation.Id);
+            if (dbRelation == null) return;
+            dbRelation.RelationType = newType;
+            db.SaveChanges();
+            relation.RelationType = newType;
         }
     }
 }

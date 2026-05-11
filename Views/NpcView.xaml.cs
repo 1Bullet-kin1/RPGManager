@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using RPGManager.Models;
 using RPGManager.ViewModels;
 
 namespace RPGManager.Views
@@ -56,6 +57,30 @@ namespace RPGManager.Views
                 viewModel.TogglePin();
 
             }
+        }
+        private void AddRelation_Click(object sender, RoutedEventArgs e)
+        {
+            if (viewModel != null)
+            {
+                viewModel.AddRelation();
+            }
+        }
+        private void RemoveRelation_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Npcrelation relation)
+            {
+                if (viewModel != null)
+                {
+                    viewModel.RemoveRelation(relation);
+                }
+            }
+        }
+       private void RelationType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox cb &&
+                cb.Tag is Npcrelation relation &&
+                cb.SelectedItem is string newType)
+                viewModel?.UpdateRelationType(relation, newType);
         }
     }
 }

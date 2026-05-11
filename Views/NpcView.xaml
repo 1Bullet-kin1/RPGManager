@@ -339,47 +339,155 @@
 
                     <!-- Связи с другими NPC -->
                     <TextBlock Text="🤝 Отношения" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                    <!-- Отношения где NPC — первый участник -->
                     <ItemsControl ItemsSource="{Binding SelectedNpc.NpcrelationNpcId1Navigations}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="0,2">
-                                    <TextBlock Text="· "/>
-                                    <TextBlock Text="{Binding NpcId2Navigation.Name}" FontWeight="Bold"/>
-                                    <TextBlock Text=" — "/>
-                                    <TextBlock Text="{Binding RelationType}"/>
-                                </StackPanel>
+                                <DockPanel Margin="0,2">
+
+                                    <!-- Режим просмотра -->
+                                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                             Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <TextBlock Text="· "/>
+                                        <TextBlock Text="{Binding NpcId2Navigation.Name}" FontWeight="Bold"/>
+                                        <TextBlock Text=" — "/>
+                                        <TextBlock Text="{Binding RelationType}"/>
+                                    </StackPanel>
+
+                                    <!-- Режим редактирования -->
+                                    <DockPanel>
+                                        <DockPanel.Style>
+                                            <Style TargetType="DockPanel">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                             Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DockPanel.Style>
+                                        <Button DockPanel.Dock="Right" Content="✖" Padding="4,2"
+                            Tag="{Binding}"
+                            Click="RemoveRelation_Click"/>
+                                        <TextBlock Text="{Binding NpcId2Navigation.Name}"
+                               FontWeight="Bold" VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                                        <ComboBox ItemsSource="{Binding DataContext.RelationTypes,
+                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              SelectedItem="{Binding RelationType, UpdateSourceTrigger=PropertyChanged}"
+                              SelectionChanged="RelationType_SelectionChanged"
+                              Tag="{Binding}"/>
+                                    </DockPanel>
+
+                                </DockPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+                    <!-- Отношения где NPC — второй участник -->
                     <ItemsControl ItemsSource="{Binding SelectedNpc.NpcrelationNpcId2Navigations}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="0,2">
-                                    <TextBlock Text="· "/>
-                                    <TextBlock Text="{Binding NpcId1Navigation.Name}" FontWeight="Bold"/>
-                                    <TextBlock Text=" — "/>
-                                    <TextBlock Text="{Binding RelationType}"/>
-                                </StackPanel>
+                                <DockPanel Margin="0,2">
+
+                                    <!-- Режим просмотра -->
+                                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                             Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <TextBlock Text="· "/>
+                                        <TextBlock Text="{Binding NpcId1Navigation.Name}" FontWeight="Bold"/>
+                                        <TextBlock Text=" — "/>
+                                        <TextBlock Text="{Binding RelationType}"/>
+                                    </StackPanel>
+
+                                    <!-- Режим редактирования -->
+                                    <DockPanel>
+                                        <DockPanel.Style>
+                                            <Style TargetType="DockPanel">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                             Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DockPanel.Style>
+                                        <Button DockPanel.Dock="Right" Content="✖" Padding="4,2"
+                            Tag="{Binding}"
+                            Click="RemoveRelation_Click"/>
+                                        <TextBlock Text="{Binding NpcId1Navigation.Name}"
+                               FontWeight="Bold" VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                                        <ComboBox ItemsSource="{Binding DataContext.RelationTypes,
+                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              SelectedItem="{Binding RelationType, UpdateSourceTrigger=PropertyChanged}"
+                              SelectionChanged="RelationType_SelectionChanged"
+                              Tag="{Binding}"/>
+                                    </DockPanel>
+
+                                </DockPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+                    <!-- Форма добавления — только в режиме редактирования -->
+                    <StackPanel Margin="0,8,0,0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.IsEditMode,
+                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                             Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <DockPanel Margin="0,0,0,4">
+                            <Button DockPanel.Dock="Right" Content="+ Добавить" Padding="8,4"
+                Click="AddRelation_Click"/>
+                            <ComboBox ItemsSource="{Binding DataContext.AllNpcs,
+                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  SelectedItem="{Binding DataContext.RelatedNpcToAdd,
+                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  DisplayMemberPath="Name"
+                  Margin="0,0,8,0"/>
+                        </DockPanel>
+                        <ComboBox ItemsSource="{Binding DataContext.RelationTypes,
+              RelativeSource={RelativeSource AncestorType=UserControl}}"
+              SelectedItem="{Binding DataContext.RelationTypeToAdd,
+              RelativeSource={RelativeSource AncestorType=UserControl}}"
+              Margin="0,0,0,4"/>
+                    </StackPanel>
 
                     <Separator Margin="0,12"/>
-
-                    <!-- Квесты -->
-                    <TextBlock Text="📜 Квесты" FontWeight="Bold" Margin="0,0,0,8"/>
-                    <ItemsControl ItemsSource="{Binding SelectedNpc.QuestNpcs}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="0,2">
-                                    <TextBlock Text="· "/>
-                                    <TextBlock Text="{Binding Quest.Title}" FontWeight="Bold"/>
-                                    <TextBlock Text=" — "/>
-                                    <TextBlock Text="{Binding Role}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
 
                 </StackPanel>
             </ScrollViewer>

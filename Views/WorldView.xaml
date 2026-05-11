@@ -16,7 +16,7 @@
 
     <DockPanel>
 
-        <!-- Панель инструментов -->
+        
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
             <Button Content="🌐 Добавить мир" Padding="8,4" Margin="0,0,8,0"
                     Click="AddWorld_Click"/>
@@ -37,13 +37,13 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Левая панель -->
+            
             <ScrollViewer Grid.Column="0">
                 <ItemsControl ItemsSource="{Binding Worlds}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
 
-                            <!-- МИР -->
+                            
                             <StackPanel>
                                 <Border x:Name="WorldBorder" Padding="8,6" Cursor="Hand"
                                         PreviewMouseLeftButtonDown="World_Click"
@@ -55,7 +55,7 @@
                                     </StackPanel>
                                 </Border>
 
-                                <!-- Континенты -->
+                                
                                 <ItemsControl ItemsSource="{Binding Continents}" Margin="12,0,0,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -71,7 +71,7 @@
                                                     </Border>
                                                 </Expander.Header>
 
-                                                <!-- Регионы -->
+                                                
                                                 <ItemsControl ItemsSource="{Binding Regions}" Margin="12,0,0,0">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
@@ -87,7 +87,7 @@
                                                                     </Border>
                                                                 </Expander.Header>
 
-                                                                <!-- Локации -->
+                                                                
                                                                 <ItemsControl ItemsSource="{Binding Locations}" Margin="12,0,0,0">
                                                                     <ItemsControl.ItemTemplate>
                                                                         <DataTemplate>
@@ -122,7 +122,6 @@
                 </ItemsControl>
             </ScrollViewer>
 
-            <!-- Правая панель -->
             <Grid Grid.Column="1">
 
                 <TextBlock Text="Выберите элемент из списка"
@@ -145,7 +144,6 @@
                             <TextBlock Text="🌐 Мир" Opacity="0.6" VerticalAlignment="Center"/>
                         </DockPanel>
 
-                        <!-- Название — просмотр -->
                         <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -160,8 +158,7 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-
-                        <!-- Название — редактирование -->
+  
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                                  FontSize="24" FontWeight="Bold" BorderThickness="0,0,0,1">
                             <TextBox.Style>
@@ -180,7 +177,30 @@
 
                         <Separator Margin="0,12"/>
 
-                        <!-- Описание — просмотр -->
+                        <StackPanel Visibility="{Binding DataContext.IsWorldSelected,
+                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                    Converter={StaticResource BoolToVis}}">     
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,2">
+                                <TextBlock Text="👤 NPC: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.WorldNpcCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,2">
+                                <TextBlock Text="⚔️ Фракции: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.WorldFactionCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,12">
+                                <TextBlock Text="📜 Квесты: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.WorldQuestCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        
                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -196,7 +216,7 @@
                             </TextBlock.Style>
                         </TextBlock>
 
-                        <!-- Описание — редактирование -->
+                        
                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                  TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Padding="4">
                             <TextBox.Style>
@@ -213,7 +233,7 @@
                             </TextBox.Style>
                         </TextBox>
 
-                        <!-- Кнопки сохранить/отмена -->
+                        
                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
                                     Visibility="{Binding DataContext.IsEditMode,
                                         RelativeSource={RelativeSource AncestorType=UserControl},
@@ -273,6 +293,29 @@
                         </TextBox>
 
                         <Separator Margin="0,12"/>
+
+                        <StackPanel Visibility="{Binding DataContext.IsContinentSelected,
+                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                    Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,2">
+                                <TextBlock Text="👤 NPC: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.ContinentNpcCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,2">
+                                <TextBlock Text="⚔️ Фракции: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.ContinentFactionCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,12">
+                                <TextBlock Text="📜 Квесты: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.ContinentQuestCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                        </StackPanel>
 
                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
                             <TextBlock.Style>
@@ -365,6 +408,29 @@
 
                         <Separator Margin="0,12"/>
 
+                        <StackPanel Visibility="{Binding DataContext.IsRegionSelected,
+                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                    Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,2">
+                                <TextBlock Text="👤 NPC: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.RegionNpcCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,2">
+                                <TextBlock Text="⚔️ Фракции: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.RegionFactionCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,12">
+                                <TextBlock Text="📜 Квесты: " Opacity="0.6"/>
+                                <TextBlock Text="{Binding DataContext.RegionQuestCount,
+                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+                        </StackPanel>
+
                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -453,8 +519,7 @@
                                 </Style>
                             </TextBox.Style>
                         </TextBox>
-
-                        <!-- Тип локации -->
+                        
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <TextBlock Text="Тип: " VerticalAlignment="Center" Opacity="0.6"/>
                             <TextBlock Text="{Binding Type}">
@@ -533,7 +598,6 @@
 
                         <Separator Margin="0,12"/>
 
-                        <!-- NPC -->
                         <TextBlock Text="👤 NPC" FontWeight="Bold" Margin="0,0,0,8"/>
                         <ItemsControl ItemsSource="{Binding Npcs}">
                             <ItemsControl.ItemTemplate>
@@ -552,7 +616,6 @@
 
                         <Separator Margin="0,12"/>
 
-                        <!-- Фракции -->
                         <TextBlock Text="⚔️ Фракции" FontWeight="Bold" Margin="0,0,0,8"/>
                         <ItemsControl ItemsSource="{Binding Factions}">
                             <ItemsControl.ItemTemplate>
@@ -569,7 +632,6 @@
 
                         <Separator Margin="0,12"/>
 
-                        <!-- Квесты -->
                         <TextBlock Text="📜 Квесты" FontWeight="Bold" Margin="0,0,0,8"/>
                         <ItemsControl ItemsSource="{Binding Quests}">
                             <ItemsControl.ItemTemplate>

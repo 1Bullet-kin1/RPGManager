@@ -38,6 +38,153 @@ namespace RPGManager.ViewModels
                 OnPropertyChanged(nameof(IsRegionSelected));
                 OnPropertyChanged(nameof(IsLocationSelected));
                 OnPropertyChanged(nameof(CanDelete));
+                OnPropertyChanged(nameof(WorldNpcCount));
+                OnPropertyChanged(nameof(WorldFactionCount));
+                OnPropertyChanged(nameof(WorldQuestCount));
+                OnPropertyChanged(nameof(ContinentNpcCount));
+                OnPropertyChanged(nameof(ContinentFactionCount));
+                OnPropertyChanged(nameof(ContinentQuestCount));
+                OnPropertyChanged(nameof(RegionNpcCount));
+                OnPropertyChanged(nameof(RegionFactionCount));
+                OnPropertyChanged(nameof(RegionQuestCount));
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of NPCs across all locations in the selected world.
+        /// </summary>
+        public int WorldNpcCount
+        {
+            get
+            {
+                if (SelectedItem is not World w) return 0;
+                return w.Continents
+                    .SelectMany(c => c.Regions)
+                    .SelectMany(r => r.Locations)
+                    .SelectMany(l => l.Npcs)
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of factions across all locations in the selected world.
+        /// </summary>
+        public int WorldFactionCount
+        {
+            get
+            {
+                if (SelectedItem is not World w) return 0;
+                return w.Continents
+                    .SelectMany(c => c.Regions)
+                    .SelectMany(r => r.Locations)
+                    .SelectMany(l => l.PresentFactions)
+                    .Distinct()
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of quests across all locations in the selected world.
+        /// </summary>
+        public int WorldQuestCount
+        {
+            get
+            {
+                if (SelectedItem is not World w) return 0;
+                return w.Continents
+                    .SelectMany(c => c.Regions)
+                    .SelectMany(r => r.Locations)
+                    .SelectMany(l => l.Quests)
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of NPCs across all locations in the selected continent.
+        /// </summary>
+        public int ContinentNpcCount
+        {
+            get
+            {
+                if (SelectedItem is not Continent c) return 0;
+                return c.Regions
+                    .SelectMany(r => r.Locations)
+                    .SelectMany(l => l.Npcs)
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of factions across all locations in the selected continent.
+        /// </summary>
+        public int ContinentFactionCount
+        {
+            get
+            {
+                if (SelectedItem is not Continent c) return 0;
+                return c.Regions
+                    .SelectMany(r => r.Locations)
+                    .SelectMany(l => l.PresentFactions)
+                    .Distinct()
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of quests across all locations in the selected continent.
+        /// </summary>
+        public int ContinentQuestCount
+        {
+            get
+            {
+                if (SelectedItem is not Continent c) return 0;
+                return c.Regions
+                    .SelectMany(r => r.Locations)
+                    .SelectMany(l => l.Quests)
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of NPCs across all locations in the selected region.
+        /// </summary>
+        public int RegionNpcCount
+        {
+            get
+            {
+                if (SelectedItem is not Region r) return 0;
+                return r.Locations
+                    .SelectMany(l => l.Npcs)
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of factions across all locations in the selected region.
+        /// </summary>
+        public int RegionFactionCount
+        {
+            get
+            {
+                if (SelectedItem is not Region r) return 0;
+                return r.Locations
+                    .SelectMany(l => l.PresentFactions)
+                    .Distinct()
+                    .Count();
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of quests across all locations in the selected region.
+        /// </summary>
+        public int RegionQuestCount
+        {
+            get
+            {
+                if (SelectedItem is not Region r) return 0;
+                return r.Locations
+                    .SelectMany(l => l.Quests)
+                    .Count();
             }
         }
 
@@ -58,6 +205,7 @@ namespace RPGManager.ViewModels
             {
                 LoadWorlds();
                 IsEditMode = false;
+                OnPropertyChanged();
             }
         }
         private void LoadWorlds()
@@ -71,7 +219,7 @@ namespace RPGManager.ViewModels
                 .Include(w => w.Continents)
                     .ThenInclude(c => c.Regions)
                         .ThenInclude(r => r.Locations)
-                            .ThenInclude(l => l.Factions)
+                            .ThenInclude(l => l.PresentFactions)
                 .Include(w => w.Continents)
                     .ThenInclude(c => c.Regions)
                         .ThenInclude(r => r.Locations)
@@ -90,6 +238,7 @@ namespace RPGManager.ViewModels
             Worlds.Add(newWorld);
             SelectedItem = newWorld;
             SelectedWorld = newWorld;
+            LoadWorlds();
         }
 
         public void AddContinent()
@@ -100,8 +249,9 @@ namespace RPGManager.ViewModels
             db.Continents.Add(newContinent);
             db.SaveChanges();
             SelectedWorld.Continents.Add(newContinent);
-            OnPropertyChanged(nameof(SelectedWorld));
+            LoadWorlds();
             SelectedItem = newContinent;
+
         }
 
         public void AddRegion()
@@ -112,7 +262,7 @@ namespace RPGManager.ViewModels
             db.Regions.Add(newRegion);
             db.SaveChanges();
             continent.Regions.Add(newRegion);
-            OnPropertyChanged(nameof(SelectedItem));
+            LoadWorlds();
             SelectedItem = newRegion;
         }
 
@@ -124,7 +274,7 @@ namespace RPGManager.ViewModels
             db.Locations.Add(newLocation);
             db.SaveChanges();
             region.Locations.Add(newLocation);
-            OnPropertyChanged(nameof(SelectedItem));
+            LoadWorlds();
             SelectedItem = newLocation;
         }
 
