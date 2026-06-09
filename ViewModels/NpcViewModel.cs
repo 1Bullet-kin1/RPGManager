@@ -132,7 +132,9 @@ namespace RPGManager.ViewModels
             ReloadNpc();
             IsEditMode = false;
         }
-
+        /// <summary>
+        /// Deletes the selected NPC and all related records from the database after user confirmation.
+        /// </summary>
         public void DeleteNpc()
         {
             if (SelectedNpc == null) return;
@@ -148,8 +150,25 @@ namespace RPGManager.ViewModels
             using var db = DbContextFactory.Create();
             var npc = db.Npcs.FirstOrDefault(n => n.Id == SelectedNpc.Id);
             if (npc == null) return;
+
+            var relations = db.Npcrelations
+                .Where(r => r.NpcId1 == npc.Id || r.NpcId2 == npc.Id)
+                .ToList();
+            db.Npcrelations.RemoveRange(relations);
+
+            var questNpcs = db.QuestNpcs
+                .Where(q => q.NpcId == npc.Id)
+                .ToList();
+            db.QuestNpcs.RemoveRange(questNpcs);
+
+            var pinnedNpcs = db.PinnedNpcs
+                .Where(p => p.NpcId == npc.Id)
+                .ToList();
+            db.PinnedNpcs.RemoveRange(pinnedNpcs);
+
             db.Npcs.Remove(npc);
             db.SaveChanges();
+
             NpcList.Remove(SelectedNpc);
             SelectedNpc = NpcList.FirstOrDefault();
         }
